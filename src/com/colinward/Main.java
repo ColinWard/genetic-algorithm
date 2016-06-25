@@ -1,5 +1,6 @@
 package com.colinward;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -16,10 +17,12 @@ public class Main {
     final static boolean DEBUG_STATEMENTS_VALUES = true;
     static Random rand;
     static int generation;
+    static ArrayList<Chromosome> genePool;
+    static ArrayList<Chromosome> newGenePool;
 
     public static void main(String[] args){
-        ArrayList<Chromosome> genePool = new ArrayList<Chromosome>(NUM_CHROMOSOMES);
-        ArrayList<Chromosome> newGenePool = new ArrayList<Chromosome>(genePool.size());
+        genePool = new ArrayList<Chromosome>(NUM_CHROMOSOMES);
+        newGenePool = new ArrayList<Chromosome>(genePool.size());
         rand = new Random();
         for(int i = 0; i < NUM_CHROMOSOMES; i++){
             genePool.add(new Chromosome(TARGET, CHROMO_LEN, CROSSOVER_RATE, MUTATION_RATE));
@@ -86,5 +89,9 @@ public class Main {
             }
         }
         return tributes.remove(tributes.size() - 1);
+    }
+
+    public static void superCoolDisplay(){
+        //TODO: Display some graphs and stats cause people like that
     }
 }
