@@ -8,29 +8,74 @@ import java.util.Random;
  */
 public class Main {
     final static int NUM_CHROMOSOMES = 10;
-    final static int TARGET = 42;
-    final static int CHROMO_LEN = 5;
+    final static double TARGET = 1.4;
+    final static int CHROMO_LEN = 9;
+    final static double CROSSOVER_RATE = 0.7;
+    final static double MUTATION_RATE = .001;
+    final static boolean DEBUG_CHROMOSOMES = false;
+    final static boolean DEBUG_STATEMENTS_VALUES = true;
     static Random rand;
+    static int generation;
 
-    public static void Main(String[] args){
+    public static void main(String[] args){
         ArrayList<Chromosome> genePool = new ArrayList<Chromosome>(NUM_CHROMOSOMES);
         ArrayList<Chromosome> newGenePool = new ArrayList<Chromosome>(genePool.size());
         rand = new Random();
         for(int i = 0; i < NUM_CHROMOSOMES; i++){
-            genePool.add(new Chromosome(TARGET, CHROMO_LEN));
+            genePool.add(new Chromosome(TARGET, CHROMO_LEN, CROSSOVER_RATE, MUTATION_RATE));
+        }
+        while(true) {
+            newGenePool.clear();
+            generation++;
+            if(DEBUG_CHROMOSOMES){
+                System.out.print("##########\nGeneration: " + generation + "\n");
+                for(int i = 0; i < genePool.size() - 1; i++) {
+                    if(genePool.get(i).isValid())
+                        System.out.println("Score "+i+": " + genePool.get(i).score + " V:"+ genePool.get(i).findValue());
+                }
+            }
+            if(DEBUG_STATEMENTS_VALUES){
+                System.out.print("##########\nGeneration: " + generation + "\n");
+                for(int i = 0; i < genePool.size() - 1; i++) {
+                    if(genePool.get(i).isValid())
+                        System.out.println("Statement: " + genePool.get(i).decodeChromo() + " V:"+ genePool.get(i).findValue());
+                }
+            }
+            for(int i = genePool.size() - 1; i >= 0; i -= 2) {
+                Chromosome kid1 = selectHeirToThrone(genePool);
+                Chromosome kid2 = selectHeirToThrone(genePool);
+                kid1.crossOver(kid2);
+                kid1.mutate();
+                kid2.mutate();
+
+                kid1.score();
+                kid2.score();
+
+                if (kid1.total == TARGET && kid1.isValid()){
+                    System.out.println("There have been " + generation + " generations and the solution is " + kid1.decodeChromo() + " with value " + kid1.findValue());
+                    return;
+                }
+                if (kid2.total == TARGET && kid2.isValid()) {
+                    System.out.println("There have been " + generation + " generations and the solution is " + kid2.decodeChromo() + " with value " + kid2.findValue());
+                    return;
+                }
+                newGenePool.add(kid1);
+                newGenePool.add(kid2);
+                if(DEBUG_CHROMOSOMES)
+                    System.out.println("Using Chromosomes with scores:" + kid1.score + " AND " + kid2.score);
+
+            }
+            genePool.addAll(newGenePool);
         }
     }
 
-    private Chromosome selectHeirToThrone(ArrayList<Chromosome> tributes){
-        // Get the total fitness
+    private static Chromosome selectHeirToThrone(ArrayList<Chromosome> tributes){
         double totalFit = 0.0;
         for (int i = tributes.size() - 1; i >= 0; i--) {
             double score = (tributes.get(i)).score;
             totalFit += score;
         }
         double randCutoff = totalFit * rand.nextDouble();
-
-        // Loop to find the node
         double totalCutoff = 0.0;
         for (int i = tributes.size() - 1; i >= 0; i--) {
             Chromosome node = tributes.get(i);
